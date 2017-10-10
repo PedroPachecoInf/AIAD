@@ -1,3 +1,4 @@
+package test;
 import jade.core.*;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
