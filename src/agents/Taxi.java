@@ -1,4 +1,5 @@
 package agents;
+import agents.Passenger.PassengerBehaviour;
 import jade.core.*;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
@@ -8,19 +9,23 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 
 public class Taxi extends Agent{
-	private int capacity,sits,x,y;
-	
-	public Taxi() {
-		if(sits>capacity)
-			throw new ArithmeticException("sits can't be higher than capacity");
-		
-	}
 	
 	class TaxiBehaviour extends SimpleBehaviour {
+		
+		public TaxiBehaviour(Agent a){
+			super(a);
+		}
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			ACLMessage msg = receive();
+			if(msg.getPerformative() == ACLMessage.INFORM) {
+				if(msg.getContent().equals("return location")){
+					ACLMessage reply = msg.createReply();
+					reply.setContent(Integer.toString(7) + ";" +  Integer.toString(4));
+					send(reply);
+				}
+			}
 			
 		}
 
@@ -33,45 +38,29 @@ public class Taxi extends Agent{
 	}
 	
 	protected void setup() {
+		//Read arguments. If arguments are != 0 fails
+		Object[] args = getArguments();
+		if(args != null && args.length != 0) {
+			System.out.println("Agent Passenger requieres one argument");
+			return;
+		}
+        
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sd = new ServiceDescription();
+		sd.setName(getName());
+		sd.setType("Taxi");
+		dfd.addServices(sd);
+		try{
+			DFService.register(this, dfd);
+		} catch(FIPAException e) {
+			e.printStackTrace();
+		}
+		
+        
+        TaxiBehaviour b = new TaxiBehaviour(this);
+		addBehaviour(b);
 		
 	}
-	
-	protected void takeDown() {
-		
-	}
-	
-	private int getCapacity() {
-		return capacity;
-	}
-	
-	private int getSits() {
-		return sits;
-	}
-	
-	private int getX() {
-		return x;
-	}
-	
-	private int getY() {
-		return y;
-	}
-	
-	private void addPassengers(int number) {
-		sits-=number;
-	}
-	
-	private void removePassengers(int number) {
-		sits+=number;
-	}
-	
-	private void setX(int newX) {
-		x=newX;
-	}
-	
-	private void setY(int newY) {
-		y=newY;
-	}
-	
-
 	
 }

@@ -10,32 +10,75 @@ import jade.domain.FIPAException;
 
 public class Passenger extends Agent{
 	
-	private boolean inTaxi;
-	int xi,yi,xf,yf;
-	
-	public Passenger(int xi,int yi,int xf,int yf){
-		this.xi=xi;
-		this.yi=yi;
-		this.xf=xf;
-		this.yf=yf;
-		this.inTaxi=false;
+	class PassengerBehaviour extends SimpleBehaviour{
+		private Boolean done = false;
+		
+		public PassengerBehaviour(Agent a){
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			ACLMessage msg = blockingReceive();
+			if(msg.getPerformative() == ACLMessage.INFORM) {
+				System.out.println("From: " + msg.getSender().getName() + "\nTo: " + getLocalName() + "\nMessage: " + msg.getContent());
+			}
+		}
+
+		@Override
+		public boolean done() {
+			return done;
+		}
 		
 	}
 	
-	
-	
-	public boolean getInTaxi (){
-		 
-		return this.inTaxi;
-	}
-	
-	public void setInTaxi(boolean inTaxi){
+	protected void setup() {
+		//Read arguments. If arguments are != 0 fails
+		Object[] args = getArguments();
+		if(args != null && args.length != 0) {
+			System.out.println("Agent Passenger requieres one argument");
+			return;
+		}
+        
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sd = new ServiceDescription();
+		sd.setName(getName());
+		sd.setType("Passenger");
+		dfd.addServices(sd);
+		try{
+			DFService.register(this, dfd);
+		} catch(FIPAException e) {
+			e.printStackTrace();
+		}
 		
-		this.inTaxi=inTaxi;
+		DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd1 = new ServiceDescription();
+        sd1.setType("HQ");
+        template.addServices(sd1);
+        
+        try {
+            DFAgentDescription[] result = DFService.search(this, template);
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            for(int i=0; i<result.length; ++i)
+               msg.addReceiver(result[i].getName());
+            msg.setContent(Integer.toString(1) + ";" + Integer.toString(2) + ";" +
+            				Integer.toString(3) + ";" + Integer.toString(4));
+            send(msg);
+         } catch(FIPAException e) { e.printStackTrace(); }
+        
+        PassengerBehaviour b = new PassengerBehaviour(this);
+		addBehaviour(b);
+		
 	}
 	
-	
-	
+	protected void takeDown() {
+		try {
+            DFService.deregister(this);
+        } catch(FIPAException e) {
+            e.printStackTrace();
+        }
+	}
 	
 }
 
