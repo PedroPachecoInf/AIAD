@@ -40,9 +40,9 @@ public class Hq extends Agent{
 	            DFAgentDescription[] result = DFService.search(agent, template);
 	            ACLMessage msg_taxis = new ACLMessage(ACLMessage.INFORM);
 	            for(int i=0; i<result.length; ++i)
-	               msg.addReceiver(result[i].getName());
-	            msg.setContent("return location");
-	            send(msg);
+	            	msg_taxis.addReceiver(result[i].getName());
+	            msg_taxis.setContent("return location");
+	            send(msg_taxis);
 	         } catch(FIPAException e) { e.printStackTrace(); }
 			
 		}
