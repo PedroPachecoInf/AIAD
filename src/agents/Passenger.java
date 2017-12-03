@@ -1,7 +1,10 @@
 package agents;
+import behaviours.PassengerSendHqBehaviour;
+import behaviours.PassengerTaxiBehaviour;
 import jade.core.*;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
+import tools.PassengerInfo;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.DFService;
@@ -9,42 +12,28 @@ import jade.domain.FIPAException;
 
 
 public class Passenger extends Agent{
+	private PassengerInfo info;
+	private String my_taxi_name;
 	
-	class PassengerBehaviour extends SimpleBehaviour{
-		private Boolean done = false;
-		
-		public PassengerBehaviour(Agent a){
-			super(a);
-		}
-
-		@Override
-		public void action() {
-			ACLMessage msg = blockingReceive();
-			if(msg.getPerformative() == ACLMessage.INFORM) {
-				System.out.println("From: " + msg.getSender().getName() + "\nTo: " + getLocalName() + "\nMessage: " + msg.getContent());
-			}
-		}
-
-		@Override
-		public boolean done() {
-			return done;
-		}
-		
-	}
-	
-	protected void setup() {
-		//Read arguments. If arguments are != 0 fails
+	protected void setup(){
 		Object[] args = getArguments();
-		if(args != null && args.length != 0) {
-			System.out.println("Agent Passenger requieres one argument");
+		if(args.length != 4){
+			System.out.println("Agent Passenger requieres four argument");
 			return;
 		}
-        
+		
+		int initial_x = Integer.parseInt((String) args[0]);
+		int initial_y = Integer.parseInt((String) args[1]);
+		int final_x = Integer.parseInt((String) args[2]);
+		int final_y = Integer.parseInt((String) args[3]);
+		
+		info = new PassengerInfo(initial_x, initial_y, final_x, final_y, this.getLocalName());
+		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
 		sd.setName(getName());
-		sd.setType("Passenger");
+		sd.setType("PASSENGER");
 		dfd.addServices(sd);
 		try{
 			DFService.register(this, dfd);
@@ -52,34 +41,32 @@ public class Passenger extends Agent{
 			e.printStackTrace();
 		}
 		
-		DFAgentDescription template = new DFAgentDescription();
-        ServiceDescription sd1 = new ServiceDescription();
-        sd1.setType("HQ");
-        template.addServices(sd1);
-        
-        try {
-            DFAgentDescription[] result = DFService.search(this, template);
-            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            for(int i=0; i<result.length; ++i)
-               msg.addReceiver(result[i].getName());
-            msg.setContent(Integer.toString(1) + ";" + Integer.toString(2) + ";" +
-            				Integer.toString(3) + ";" + Integer.toString(4));
-            send(msg);
-         } catch(FIPAException e) { e.printStackTrace(); }
-        
-        PassengerBehaviour b = new PassengerBehaviour(this);
-		addBehaviour(b);
+		System.out.println("Created agent: " + this.getName());
 		
+		this.addBehaviour(new PassengerSendHqBehaviour(this));
+		this.addBehaviour(new PassengerTaxiBehaviour(this));
 	}
 	
-	protected void takeDown() {
-		try {
-            DFService.deregister(this);
-        } catch(FIPAException e) {
-            e.printStackTrace();
-        }
+	protected void takeDown(){
+		try{
+			DFService.deregister(this);
+		}catch(FIPAException e){
+			e.printStackTrace();
+		}
 	}
 	
+	public PassengerInfo getInfo(){
+		return this.info;
+	}
+	
+	public void setMyTaxyName(String taxi_name){
+		this.my_taxi_name = taxi_name;
+	}
+	
+
+	public String getMyTaxyName(){
+		return this.my_taxi_name;
+	}
 }
 
 
