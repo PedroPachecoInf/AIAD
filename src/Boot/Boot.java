@@ -28,12 +28,16 @@ package Boot;
 
 import jade.core.Runtime;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.UIManager;
+
+import gui.Gui;
 import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -57,8 +61,11 @@ import jade.util.Logger;
  *
  */
 public class Boot {
+	public static Gui gui;
 	public static final String DEFAULT_FILENAME = "leap.properties";
 	private static Logger logger = Logger.getMyLogger("jade.Boot");
+	private static ArrayList<AgentController> agent_controllers = new ArrayList<AgentController>();
+	private static Properties props;
 
 	/**
 	 * Fires up the <b><em>JADE</em></b> system.
@@ -67,6 +74,8 @@ public class Boot {
 	 * agent platform.
 	 */
 	public static void main(String args[]) {
+		AgentContainer container = null;
+		gui = new Gui(20, 20);
 		try {
 			// Create the Profile 
 			ProfileImpl p = null;
@@ -96,22 +105,11 @@ public class Boot {
 			Runtime.instance().setCloseVM(true);
 			//#PJAVA_EXCLUDE_BEGIN
 			// Check whether this is the Main Container or a peripheral container
-			AgentContainer container;
+			
 			if (p.getBooleanProperty(Profile.MAIN, true)) {
 				container = Runtime.instance().createMainContainer(p);
 			} else {
 				container = Runtime.instance().createAgentContainer(p);
-			}
-			
-			File file = new File("src/scenario_1.txt");
-			
-			try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			    String line;
-			    while ((line = br.readLine()) != null) {
-			       addAgent(line, container);
-			    }
-			}catch (IOException e) {
-				e.printStackTrace();
 			}
 			
 			//#PJAVA_EXCLUDE_END
@@ -134,6 +132,26 @@ public class Boot {
 			//System.err.println("Usage: java jade.Boot <filename>");
 			System.exit(-1);
 		}
+		
+		File file = new File("src/scenario_1.txt");
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+		    String line;
+		    while ((line = br.readLine()) != null) {
+		       addAgent(line, container);
+		    }
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		for(AgentController g : agent_controllers){
+			try {
+				g.start();
+				Thread.sleep(100);
+			} catch (StaleProxyException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -144,7 +162,7 @@ public class Boot {
 
 
 	public static Properties parseCmdLineArgs(String[] args) throws IllegalArgumentException {
-		Properties props = new ExtendedProperties();
+		props = new ExtendedProperties();
 
 		int i = 0;
 		while (i < args.length) {
@@ -296,9 +314,8 @@ public class Boot {
 		Object[] args = new Object[0];
 		try {
 			AgentController g = container.createNewAgent(parts[1], "agents." + parts[0], args);
-			g.start();
-			Thread.sleep(100);
-		} catch (StaleProxyException | InterruptedException e) {
+			agent_controllers.add(g);
+		} catch (StaleProxyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -309,9 +326,8 @@ public class Boot {
 		System.arraycopy(parts, 2, args, 0, 3);
 		try {
 			AgentController g = container.createNewAgent(parts[1], "agents." + parts[0], args);
-			g.start();
-			Thread.sleep(100);
-		} catch (StaleProxyException | InterruptedException e) {
+			agent_controllers.add(g);
+		} catch (StaleProxyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -322,9 +338,8 @@ public class Boot {
 		System.arraycopy(parts, 2, args, 0, 4);
 		try {
 			AgentController g = container.createNewAgent(parts[1], "agents." + parts[0], args);
-			g.start();
-			Thread.sleep(100);
-		} catch (StaleProxyException | InterruptedException e) {
+			agent_controllers.add(g);
+		} catch (StaleProxyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

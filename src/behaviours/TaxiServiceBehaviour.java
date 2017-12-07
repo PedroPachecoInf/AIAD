@@ -2,7 +2,9 @@ package behaviours;
 
 import java.util.ArrayList;
 
+import Boot.Boot;
 import agents.Taxi;
+import gui.Gui;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -14,6 +16,7 @@ import tools.TaxiService;
 public class TaxiServiceBehaviour extends CyclicBehaviour {
 	private int wait_time = 100;
 	private long time;
+	private static boolean run = false;
 	
 	private Taxi taxi;
 	MessageTemplate template_reply = MessageTemplate.or(MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.AGREE), MessageTemplate.MatchProtocol("TaxiPassengerProtocol")),
@@ -29,8 +32,15 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 			this.time = System.currentTimeMillis();
 			return;
 		}
-			
-		moveTaxi();
+		if(run)
+			moveTaxi();
+	}
+	
+	public static void changeState(){
+		if(run)
+			run = false;
+		else
+			run = true;
 	}
 
 	public void moveTaxi() {
@@ -53,24 +63,32 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 			//System.out.println(out);
 		}
 		
+		int old_x = this.taxi.getX();
+		int old_y = this.taxi.getY();
+		
 		this.taxi.setX(new_pos[0]);
 		this.taxi.setY(new_pos[1]);
 		
 		String out = String.format("Res x: %d\nRes y: %d\n\n", this.taxi.getX(), this.taxi.getY());
 		//System.out.println(out);
 		
-		informPassengers();
+		ArrayList<String> names = informPassengers();
 		
 		if(!curr_ser.isInCar() && this.taxi.getX() == curr_ser.getInfo().getInitial_x() && this.taxi.getY() == curr_ser.getInfo().getInitial_y())
 			getIn(curr_ser.getPassenger(), curr_ser);
 		
+		Gui.moveTaxi(old_y, old_x, this.taxi.getY(), this.taxi.getX(), this.taxi.getLocalName(), names.get(0), names.get(1));
+		
 	}
 	
-	public void informPassengers(){
+	public ArrayList<String> informPassengers(){
+		ArrayList<String> passenger_names = new ArrayList<>();
 		ArrayList<TaxiService> to_be_removed = new ArrayList<>();
 		
 		for(TaxiService service : this.taxi.getServices())
 			if(service.isInCar()){
+				passenger_names.add(service.getPassenger().getLocalName());
+				
 				ACLMessage query = new ACLMessage(ACLMessage.QUERY_IF);
 				query.setProtocol("TaxiPassengerProtocol");
 				query.setContent(this.taxi.getX() + "-" + this.taxi.getY());
@@ -84,6 +102,14 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 		
 		for(TaxiService service : to_be_removed)
 			this.taxi.removeService(service);
+		
+		if(passenger_names.size() == 0){
+			passenger_names.add("");
+			passenger_names.add("");
+		}else if(passenger_names.size() == 1)
+			passenger_names.add("");
+		
+		return passenger_names;
 	}
 	
 	public void getIn(AID aid, TaxiService ser){

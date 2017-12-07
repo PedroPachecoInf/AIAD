@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import behaviours.HqTaxiContractNetResponderBehaviour;
 import behaviours.TaxiServiceBehaviour;
+import gui.Gui;
 import jade.core.*;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
@@ -41,6 +42,7 @@ public class Taxi extends Agent{
 			e.printStackTrace();
 		}
 		
+		Gui.newTaxi(x, y, this.getLocalName());
 		MessageTemplate template = MessageTemplate.and(
 				MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchPerformative(ACLMessage.CFP) );

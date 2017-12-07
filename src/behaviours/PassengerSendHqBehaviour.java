@@ -1,6 +1,7 @@
 package behaviours;
 
 import agents.Passenger;
+import gui.Gui;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
@@ -19,6 +20,7 @@ public class PassengerSendHqBehaviour extends OneShotBehaviour {
 
 	@Override
 	public void action() {
+		Gui.newPassenger(this.passenger.getInfo().getInitial_y(), this.passenger.getInfo().getInitial_x(), this.passenger.getLocalName());
 		DFAgentDescription template = new DFAgentDescription();
 		ServiceDescription sd1 = new ServiceDescription();
 		sd1.setType("HQ");
