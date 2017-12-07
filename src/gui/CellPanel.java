@@ -12,11 +12,14 @@ import javax.swing.SwingConstants;
 
 public class CellPanel extends JPanel {
 	
-	private Color defaultBackground;
-	private JLabel[] labels;;
+	private Color default_background;
+	private Color saved_background;
+	private JLabel[] labels;
+	private JLabel[] saved_labels;
+	
 
 	public CellPanel() {
-		defaultBackground = this.getBackground();
+		default_background = this.getBackground();
 		GridLayout layout = new GridLayout(3, 1);
 		layout.setVgap(0);
 		layout.setHgap(0);
@@ -25,7 +28,13 @@ public class CellPanel extends JPanel {
 		JLabel label2 = new JLabel("", SwingConstants.CENTER);
 		JLabel label3 = new JLabel("", SwingConstants.CENTER);
 		
+		this.saved_background = this.getBackground();
+		JLabel saved_label = new JLabel("", SwingConstants.CENTER);
+		JLabel saved_label2 = new JLabel("", SwingConstants.CENTER);
+		JLabel saved_label3 = new JLabel("", SwingConstants.CENTER);
+		
 		labels = new JLabel[]{label, label2, label3};
+		saved_labels = new JLabel[]{saved_label, saved_label2, saved_label3};
 
 		add(label);
 		add(label2);
@@ -54,10 +63,31 @@ public class CellPanel extends JPanel {
 		return this.labels[i];
 	}
 	
+	public JLabel getSavedLabel(int i){
+		return this.saved_labels[i];
+	}
+	
 	public void reset(){
-		this.setBackground(this.defaultBackground);
+		this.setBackground(this.default_background);
+		this.saved_background = this.default_background;
+		
 		for(JLabel label : labels){
 			label.setText("");
 		}
+		
+		for(JLabel label : saved_labels){
+			label.setText("");
+		}
+	}
+	
+	public void resetToSaved(){
+		this.setBackground(this.saved_background);
+		this.labels[0].setText(this.saved_labels[0].getText());
+		this.labels[1].setText(this.saved_labels[1].getText());
+		this.labels[2].setText(this.saved_labels[2].getText());
+	}
+	
+	public void setSavedBackground(Color color){
+		this.saved_background = color;
 	}
 }

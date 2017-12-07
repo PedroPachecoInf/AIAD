@@ -16,6 +16,7 @@ import tools.TaxiService;
 public class TaxiServiceBehaviour extends CyclicBehaviour {
 	private int wait_time = 100;
 	private long time;
+	private int counter = 0;
 	private static boolean run = false;
 	
 	private Taxi taxi;
@@ -74,8 +75,10 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 		
 		ArrayList<String> names = informPassengers();
 		
-		if(!curr_ser.isInCar() && this.taxi.getX() == curr_ser.getInfo().getInitial_x() && this.taxi.getY() == curr_ser.getInfo().getInitial_y())
+		if(!curr_ser.isInCar() && this.taxi.getX() == curr_ser.getInfo().getInitial_x() && this.taxi.getY() == curr_ser.getInfo().getInitial_y()){
 			getIn(curr_ser.getPassenger(), curr_ser);
+			Gui.resetCell(curr_ser.getInfo().getInitial_y(), curr_ser.getInfo().getInitial_x());
+		}
 		
 		Gui.moveTaxi(old_y, old_x, this.taxi.getY(), this.taxi.getX(), this.taxi.getLocalName(), names.get(0), names.get(1));
 		
@@ -96,8 +99,10 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 				this.taxi.send(query);
 				
 				ACLMessage reply = this.taxi.blockingReceive(this.template_reply);
-				if(reply.getPerformative() == ACLMessage.AGREE)
+				if(reply.getPerformative() == ACLMessage.AGREE){
 					to_be_removed.add(service);
+					Gui.resetCell(service.getInfo().getFinal_y(), service.getInfo().getFinal_x());
+				}
 			}
 		
 		for(TaxiService service : to_be_removed)

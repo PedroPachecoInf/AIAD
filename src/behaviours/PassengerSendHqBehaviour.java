@@ -20,7 +20,7 @@ public class PassengerSendHqBehaviour extends OneShotBehaviour {
 
 	@Override
 	public void action() {
-		Gui.newPassenger(this.passenger.getInfo().getInitial_y(), this.passenger.getInfo().getInitial_x(), this.passenger.getLocalName());
+		Gui.newPassenger(this.passenger.getInfo().getInitial_y(), this.passenger.getInfo().getInitial_x(), this.passenger.getInfo().getFinal_y(), this.passenger.getInfo().getFinal_x(), this.passenger.getLocalName());
 		DFAgentDescription template = new DFAgentDescription();
 		ServiceDescription sd1 = new ServiceDescription();
 		sd1.setType("HQ");
