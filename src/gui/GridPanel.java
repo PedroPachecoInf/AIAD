@@ -9,8 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 
-import gui.TestGrid01.CellPane;
-
 public class GridPanel extends JPanel{
 	private int n_rows;
 	private int n_cols;

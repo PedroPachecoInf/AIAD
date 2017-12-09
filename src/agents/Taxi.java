@@ -21,14 +21,14 @@ public class Taxi extends Agent{
 	
 	protected void setup(){
 		Object[] args = getArguments();
-		if(args.length != 3){
-			System.out.println("Agent Passenger requieres three argument");
+		if(args.length != 4){
+			System.out.println("Agent Taxi requieres four argument");
 			return;
 		}
 		
-		this.capacity = Integer.parseInt((String) args[0]);
-		this.x = Integer.parseInt((String) args[1]);
-		this.y = Integer.parseInt((String) args[2]);
+		this.capacity = Integer.parseInt((String) args[1]);
+		this.x = Integer.parseInt((String) args[2]);
+		this.y = Integer.parseInt((String) args[3]);
 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -47,7 +47,9 @@ public class Taxi extends Agent{
 				MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET),
 				MessageTemplate.MatchPerformative(ACLMessage.CFP) );
 		
-		this.addBehaviour(new HqTaxiContractNetResponderBehaviour(this, template));
+		boolean share_on = Boolean.parseBoolean((String) args[0]);
+		
+		this.addBehaviour(new HqTaxiContractNetResponderBehaviour(this, template, share_on));
 		this.addBehaviour(new TaxiServiceBehaviour(this));
 		System.out.println("Created agent: " + this.getName());
 	}

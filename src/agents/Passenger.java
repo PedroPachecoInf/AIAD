@@ -14,6 +14,7 @@ import jade.domain.FIPAException;
 public class Passenger extends Agent{
 	private PassengerInfo info;
 	private String my_taxi_name;
+	private double cost;
 	
 	protected void setup(){
 		Object[] args = getArguments();
@@ -27,7 +28,8 @@ public class Passenger extends Agent{
 		int final_x = Integer.parseInt((String) args[2]);
 		int final_y = Integer.parseInt((String) args[3]);
 		
-		info = new PassengerInfo(initial_x, initial_y, final_x, final_y, this.getLocalName());
+		this.info = new PassengerInfo(initial_x, initial_y, final_x, final_y, this.getLocalName());
+		this.cost = 0.0;
 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -66,6 +68,14 @@ public class Passenger extends Agent{
 
 	public String getMyTaxyName(){
 		return this.my_taxi_name;
+	}
+	
+	public double getCost(){
+		return this.cost;
+	}
+	
+	public void addCost(double cost){
+		this.cost = this.cost + cost;
 	}
 }
 

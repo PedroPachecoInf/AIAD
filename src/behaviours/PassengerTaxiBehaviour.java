@@ -1,6 +1,7 @@
 package behaviours;
 
 import agents.Passenger;
+import agents.Taxi;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -46,7 +47,7 @@ public class PassengerTaxiBehaviour extends OneShotBehaviour {
 			this.passenger.send(location_reply);
 		}
 		
-		System.out.println(this.passenger.getLocalName() + ": I Arrived at my location!");
+		System.out.println(this.passenger.getLocalName() + ": I Arrived at my location! The trip costed me: " + this.passenger.getCost());
 		
 	}
 	
@@ -54,6 +55,8 @@ public class PassengerTaxiBehaviour extends OneShotBehaviour {
 		String[] content_parts = content.split("-");
 		int taxi_x = Integer.parseInt(content_parts[0]);
 		int taxi_y = Integer.parseInt(content_parts[1]);
+		double cost = Double.parseDouble(content_parts[2]);
+		this.passenger.addCost(cost);
 		
 		return taxi_x == this.passenger.getInfo().getFinal_x() && taxi_y == this.passenger.getInfo().getFinal_y();
 	}

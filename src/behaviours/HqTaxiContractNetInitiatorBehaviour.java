@@ -7,6 +7,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.proto.ContractNetInitiator;
+import tools.Proposal;
 
 public class HqTaxiContractNetInitiatorBehaviour extends ContractNetInitiator{
 	private ACLMessage cfp_msg;
@@ -32,7 +33,7 @@ public class HqTaxiContractNetInitiatorBehaviour extends ContractNetInitiator{
 				ACLMessage reply = msg.createReply();
 				reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
 				acceptances.addElement(reply);
-				int proposal = Integer.parseInt(msg.getContent());
+				int proposal = new Proposal(msg.getContent()).getProposal();
 				if(proposal < best_proposal){
 					best_proposer = reply;
 					best_proposal = proposal;

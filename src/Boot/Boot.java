@@ -63,6 +63,7 @@ import jade.util.Logger;
 public class Boot {
 	public static Gui gui;
 	public static final String DEFAULT_FILENAME = "leap.properties";
+	public static final String SCENARIO_FILENAME = "src/scenario_2.txt";
 	private static Logger logger = Logger.getMyLogger("jade.Boot");
 	private static ArrayList<AgentController> agent_controllers = new ArrayList<AgentController>();
 	private static Properties props;
@@ -322,8 +323,8 @@ public class Boot {
 	}
 	
 	private static void parseTaxi(String[] parts, AgentContainer container){
-		Object[] args = new Object[3];
-		System.arraycopy(parts, 2, args, 0, 3);
+		Object[] args = new Object[4];
+		System.arraycopy(parts, 2, args, 0, 4);
 		try {
 			AgentController g = container.createNewAgent(parts[1], "agents." + parts[0], args);
 			agent_controllers.add(g);

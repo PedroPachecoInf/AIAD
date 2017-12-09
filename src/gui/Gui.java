@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import behaviours.HqTaxiContractNetResponderBehaviour;
 import behaviours.TaxiServiceBehaviour;
 
 public class Gui {
@@ -46,17 +47,17 @@ public class Gui {
 							button.setText("Run");
 					}
 				});
-
+				
 				frame.add(button);
 
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setLayout(new BorderLayout());
                 grid = new GridPanel(n_rows, n_cols);
-                frame.add(grid);
+                frame.add(grid, BorderLayout.EAST);
                
                 frame.pack();
                 Dimension d = frame.getSize();
-                d.setSize(d.getWidth() + 300 , d.getHeight());
+                d.setSize(d.getWidth() + 150 , d.getHeight());
                 frame.setSize(d);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);

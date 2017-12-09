@@ -34,7 +34,10 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 			return;
 		}
 		if(run)
-			moveTaxi();
+			if(this.taxi.getService(0).getShareService() == null)
+				moveTaxi();
+			else
+				moveShareTaxi();
 	}
 	
 	public static void changeState(){
@@ -42,6 +45,71 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 			run = false;
 		else
 			run = true;
+	}
+	
+	public void moveShareTaxi(){
+		if((System.currentTimeMillis() - this.time) < wait_time)
+			return;
+		
+		this.time = System.currentTimeMillis();
+		
+		TaxiService curr_ser = this.taxi.getService(0);
+		TaxiService share_ser = curr_ser.getShareService();
+		int[] new_pos = new int[]{this.taxi.getX(), this.taxi.getY()};
+		int best_move = Integer.MAX_VALUE;
+		
+		if((!curr_ser.isInCar() && !curr_ser.isCompleted()) || (!share_ser.isInCar() && !share_ser.isCompleted())){
+			if(!curr_ser.isInCar()){
+				int distance = calculateDistanceTwoPoints(this.taxi.getX(), this.taxi.getY(), curr_ser.getInfo().getInitial_x(), curr_ser.getInfo().getInitial_y()); 
+				if(distance < best_move){
+					new_pos = nextMove(this.taxi.getX(), this.taxi.getY(), curr_ser.getInfo().getInitial_x(), curr_ser.getInfo().getInitial_y());
+					best_move = distance;
+				}
+			}
+			if(!share_ser.isInCar()){
+				int distance = calculateDistanceTwoPoints(this.taxi.getX(), this.taxi.getY(), share_ser.getInfo().getInitial_x(), share_ser.getInfo().getInitial_y()); 
+				if(distance < best_move){
+					new_pos = nextMove(this.taxi.getX(), this.taxi.getY(), share_ser.getInfo().getInitial_x(), share_ser.getInfo().getInitial_y());
+					best_move = distance;
+				}
+			}
+		}else{
+			if(!curr_ser.isCompleted()){
+				int distance = calculateDistanceTwoPoints(this.taxi.getX(), this.taxi.getY(), curr_ser.getInfo().getFinal_x(), curr_ser.getInfo().getFinal_y());
+				if(distance < best_move){
+					new_pos = nextMove(this.taxi.getX(), this.taxi.getY(), curr_ser.getInfo().getFinal_x(), curr_ser.getInfo().getFinal_y());
+					best_move = distance;
+				}
+			}
+			if(!share_ser.isCompleted()){
+				int distance = calculateDistanceTwoPoints(this.taxi.getX(), this.taxi.getY(), share_ser.getInfo().getFinal_x(), share_ser.getInfo().getFinal_y());
+				if(distance < best_move){
+					new_pos = nextMove(this.taxi.getX(), this.taxi.getY(), share_ser.getInfo().getFinal_x(), share_ser.getInfo().getFinal_y());
+					best_move = distance;
+				}
+			}
+		}
+		
+		int old_x = this.taxi.getX();
+		int old_y = this.taxi.getY();
+		
+		this.taxi.setX(new_pos[0]);
+		this.taxi.setY(new_pos[1]);
+		
+		ArrayList<String> names = informPassengers();
+		
+		if(!curr_ser.isInCar() && this.taxi.getX() == curr_ser.getInfo().getInitial_x() && this.taxi.getY() == curr_ser.getInfo().getInitial_y()){
+			getIn(curr_ser.getPassenger(), curr_ser);
+			Gui.resetCell(curr_ser.getInfo().getInitial_y(), curr_ser.getInfo().getInitial_x());
+		}
+		
+		if(!share_ser.isInCar() && this.taxi.getX() == share_ser.getInfo().getInitial_x() && this.taxi.getY() == share_ser.getInfo().getInitial_y()){
+			getIn(share_ser.getPassenger(), share_ser);
+			Gui.resetCell(share_ser.getInfo().getInitial_y(), share_ser.getInfo().getInitial_x());
+		}
+		
+		Gui.moveTaxi(old_y, old_x, this.taxi.getY(), this.taxi.getX(), this.taxi.getLocalName(), names.get(0), names.get(1));
+		
 	}
 
 	public void moveTaxi() {
@@ -88,22 +156,62 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 		ArrayList<String> passenger_names = new ArrayList<>();
 		ArrayList<TaxiService> to_be_removed = new ArrayList<>();
 		
-		for(TaxiService service : this.taxi.getServices())
-			if(service.isInCar()){
+		for(TaxiService service : this.taxi.getServices()){
+			if(service.isInCar() && !service.isCompleted()){
 				passenger_names.add(service.getPassenger().getLocalName());
+				
+				String cost = null;
+				if(service.getShareService() != null && service.getShareService().isInCar())
+					cost = "0.5";
+				else
+					cost = "1.0";
 				
 				ACLMessage query = new ACLMessage(ACLMessage.QUERY_IF);
 				query.setProtocol("TaxiPassengerProtocol");
-				query.setContent(this.taxi.getX() + "-" + this.taxi.getY());
+				query.setContent(this.taxi.getX() + "-" + this.taxi.getY() + "-" + cost);
 				query.addReceiver(service.getPassenger());
 				this.taxi.send(query);
 				
 				ACLMessage reply = this.taxi.blockingReceive(this.template_reply);
 				if(reply.getPerformative() == ACLMessage.AGREE){
-					to_be_removed.add(service);
+					if(service.getShareService() != null && service.getShareService().isCompleted())
+						to_be_removed.add(service);
+					else
+						service.setCompleted(true);
+					if(service.getShareService() == null)
+						to_be_removed.add(service);
 					Gui.resetCell(service.getInfo().getFinal_y(), service.getInfo().getFinal_x());
 				}
 			}
+			if(service.getShareService() != null && !service.getShareService().isCompleted()){
+				TaxiService share_ser = service.getShareService();
+				if(share_ser.isInCar()){
+					passenger_names.add(share_ser.getPassenger().getLocalName());
+					
+					String cost = null;
+					if(service.isInCar())
+						cost = "0.5";
+					else
+						cost = "1.0";
+					
+					ACLMessage query = new ACLMessage(ACLMessage.QUERY_IF);
+					query.setProtocol("TaxiPassengerProtocol");
+					query.setContent(this.taxi.getX() + "-" + this.taxi.getY() + "-" + cost);
+					query.addReceiver(share_ser.getPassenger());
+					this.taxi.send(query);
+					
+					ACLMessage reply = this.taxi.blockingReceive(this.template_reply);
+					if(reply.getPerformative() == ACLMessage.AGREE){
+						if(service.isCompleted())
+							to_be_removed.add(service);
+						else
+							share_ser.setCompleted(true);
+						Gui.resetCell(share_ser.getInfo().getFinal_y(), share_ser.getInfo().getFinal_x());
+					}
+				}
+			}
+		}
+			
 		
 		for(TaxiService service : to_be_removed)
 			this.taxi.removeService(service);
@@ -157,6 +265,10 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 			ny = y1;
 		
 		return new int[]{nx, ny};
+	}
+	
+	private int calculateDistanceTwoPoints(int x1, int y1, int x2, int y2){
+		return (int) Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 	}
 
 }

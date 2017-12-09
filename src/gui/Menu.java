@@ -81,8 +81,8 @@ public class Menu {
 		
 		
 		JLabel label = new JLabel("");
-		Image img = new ImageIcon(this.getClass().getResource("/taxi.png")).getImage();
-		label.setIcon(new ImageIcon(img));
+		//Image img = new ImageIcon(this.getClass().getResource("/taxi.png")).getImage();
+		//label.setIcon(new ImageIcon(img));
 		label.setBounds(-11,16,166,256);
 		frame.getContentPane().add(label);
 	}

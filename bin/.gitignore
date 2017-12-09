@@ -1,5 +1,7 @@
-/agents/
+/gui/
+/scenario_2.txt
+/Boot/
+/test/
 /behaviours/
 /tools/
-/gui/
-/Boot/
+/agents/
