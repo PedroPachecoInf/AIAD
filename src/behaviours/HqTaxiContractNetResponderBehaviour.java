@@ -2,8 +2,10 @@ package behaviours;
 
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 import agents.Taxi;
+import gui.Gui;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.FIPAAgentManagement.FailureException;
@@ -51,6 +53,7 @@ public class HqTaxiContractNetResponderBehaviour extends ContractNetResponder{
 				if(ser.getPassenger().getLocalName().equals(proposal.getPassenger())){
 					ser.setShareService(service);
 					System.out.println(accept.getContent() + ": I am going to share a ride with " + ser.getPassenger().getLocalName());
+					Gui.addConsole(accept.getContent() + ": I am going with " + ser.getPassenger().getLocalName());
 				}
 			}
 		}
@@ -69,7 +72,13 @@ public class HqTaxiContractNetResponderBehaviour extends ContractNetResponder{
 		int x1 = this.taxi.getX(), y1 = this.taxi.getY(), total = 0;
 		boolean share = false;
 		String share_passenger = null;
-		
+		/*
+		if(true){
+			total = ThreadLocalRandom.current().nextInt(0, 100 + 1);
+			System.out.println(total);
+			return new Proposal(total, share_passenger, share);
+		}
+		*/
 		for(TaxiService service : this.taxi.getServices()){
 			if(service.getShareService() == null && share_on){
 				double dist_start, dist_end;

@@ -1,4 +1,19 @@
 Hq hq
-Taxi taxi 2 1 1
-Passenger pass1 3 4 5 6
-Passenger pass2 3 2 6 7
+Taxi taxi1 true 2 1 1
+Taxi taxi2 true 2 20 1
+Taxi taxi3 true 2 1 20
+Passenger pass1 15 6 6 19
+Passenger pass2 4 1 12 7
+Passenger pass3 15 14 12 17
+Passenger pass4 11 14 15 17
+Passenger pass5 5 7 9 4
+Passenger pass6 17 2 1 4
+Passenger pass7 4 17 12 20
+Passenger pass8 7 20 14 6
+Passenger pass9 16 9 13 1
+Passenger pass10 8 4 4 5
+Passenger pass11 12 15 18 17
+Passenger pass12 5 10 5 19
+Passenger pass13 4 10 5 17
+Passenger pass14 18 7 14 2
+Passenger pass15 3 6 10 16
