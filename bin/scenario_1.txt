@@ -1,6 +1,6 @@
 Hq hq
-Taxi taxi false 2 1 1
-Taxi taxi1 false 2 20 20
+Taxi taxi1 true 2 1 1
+Taxi taxi2 true 2 20 20
 Passenger pass1 19 11 10 19
 Passenger pass2 10 2 5 4
 Passenger pass3 11 9 20 18

@@ -17,6 +17,7 @@ import jade.domain.FIPANames;
 
 public class Taxi extends Agent{
 	private int x, y, capacity;
+	private int cost;
 	private ArrayList<TaxiService> services = new ArrayList<>();
 	
 	protected void setup(){
@@ -29,6 +30,7 @@ public class Taxi extends Agent{
 		this.capacity = Integer.parseInt((String) args[1]);
 		this.x = Integer.parseInt((String) args[2]);
 		this.y = Integer.parseInt((String) args[3]);
+		this.cost = 0;
 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -100,5 +102,13 @@ public class Taxi extends Agent{
 	
 	public ArrayList<TaxiService> getServices(){
 		return this.services;
+	}
+	
+	public int getCost(){
+		return this.cost;
+	}
+	
+	public void addCost(int cost){
+		this.cost = this.cost + cost;
 	}
 }

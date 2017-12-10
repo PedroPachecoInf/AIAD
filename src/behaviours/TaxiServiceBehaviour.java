@@ -109,6 +109,8 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 		}
 		
 		Gui.moveTaxi(old_y, old_x, this.taxi.getY(), this.taxi.getX(), this.taxi.getLocalName(), names.get(0), names.get(1));
+		this.taxi.addCost(1);
+		Gui.addCostTaxi(this.taxi.getLocalName(), this.taxi.getCost());
 		
 	}
 
@@ -149,6 +151,8 @@ public class TaxiServiceBehaviour extends CyclicBehaviour {
 		}
 		
 		Gui.moveTaxi(old_y, old_x, this.taxi.getY(), this.taxi.getX(), this.taxi.getLocalName(), names.get(0), names.get(1));
+		this.taxi.addCost(1);
+		Gui.addCostTaxi(this.taxi.getLocalName(), this.taxi.getCost());
 		
 	}
 	

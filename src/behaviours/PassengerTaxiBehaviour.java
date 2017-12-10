@@ -2,6 +2,7 @@ package behaviours;
 
 import agents.Passenger;
 import agents.Taxi;
+import gui.Gui;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -24,6 +25,7 @@ public class PassengerTaxiBehaviour extends OneShotBehaviour {
 		ACLMessage arrive_reply = arrive.createReply();
 		if(arrive.getSender().getLocalName().equals(passenger.getMyTaxyName()) && !taxiArrived(arrive.getContent())){
 			System.out.println(this.passenger.getLocalName() + ": " + arrive.getSender().getLocalName() + " has arrived at my location");
+			Gui.addConsole(this.passenger.getLocalName() + ": " + arrive.getSender().getLocalName() + " has arrived");
 			arrive_reply.setPerformative(ACLMessage.AGREE);
 			this.passenger.send(arrive_reply);
 		}
@@ -48,7 +50,7 @@ public class PassengerTaxiBehaviour extends OneShotBehaviour {
 		}
 		
 		System.out.println(this.passenger.getLocalName() + ": I Arrived at my location! The trip costed me: " + this.passenger.getCost());
-		
+		Gui.addConsole(this.passenger.getLocalName() + ": I Arrived at my location!\n       " + "The trip costed me: " + this.passenger.getCost());
 	}
 	
 	public boolean arrivedFinalLocation(String content){
